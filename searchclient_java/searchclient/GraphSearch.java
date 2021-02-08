@@ -8,13 +8,11 @@ public class GraphSearch {
 
     public static Action[][] search(State initialState, Frontier frontier)
     {
-        boolean outputFixedSolution = true;
+        boolean outputFixedSolution = false;
+
 
         if (outputFixedSolution) {
             //Part 1:
-            //The agents will perform the sequence of actions returned by this method.
-            //Try to solve a few levels by hand, enter the found solutions below, and run them:
-
             return new Action[][] {
                     {Action.MoveE},
                     {Action.MoveE},
@@ -43,10 +41,11 @@ public class GraphSearch {
             //state.getExpandedStates() - Returns an ArrayList<State> containing the states reachable from the current state.
             //You should also take a look at Frontier.java to see which methods the Frontier interface exposes
             //
-            //printSearchStates(explored, frontier): As you can see below, the code will print out status 
+            //printSearchStates(explored, frontier): As you can see below, the code will print out status
             //(#explored states, size of the frontier, #generated states, total time used) for every 10000th node generated.
-            //You might also find it helpful to print out these stats when a solution has been found, so you can keep 
+            //You might also find it helpful to print out these stats when a solution has been found, so you can keep
             //track of the exact total number of states generated.
+
 
 
             int iterations = 0;
@@ -54,14 +53,41 @@ public class GraphSearch {
             frontier.add(initialState);
             HashSet<State> explored = new HashSet<>();
 
-            while (true) {
 
+            while (true) {
                 //Print a status message every 10000 iteration
                 if (++iterations % 10000 == 0) {
                     printSearchStatus(explored, frontier);
                 }
 
-                //Your code here...
+
+                // BFS search problem
+
+                // intial state is goal state to the problem
+                if(initialState.isGoalState()) {
+                    printSearchStatus(explored, frontier);
+                    return initialState.extractPlan();
+                }
+                explored.add(initialState);
+
+                while(!frontier.isEmpty()) {
+                    State node = frontier.pop();
+                    // acquires possible states of the node that was popped from frontier
+                    // and determines if child is the goal state and if not then adds them to frontier
+                    // and marks them as explored and repeats the process
+                    for (State child : node.getExpandedStates()) {
+                        if(child.isGoalState()){
+                            printSearchStatus(explored, frontier);
+                            return child.extractPlan();
+                        }
+                        if(!explored.contains(child)) {
+                            explored.add(child);
+                            frontier.add(child);
+                        }
+                    }
+                }
+                // Graph has been explored completely and goal state was not found
+                return null;
             }
         }
     }
