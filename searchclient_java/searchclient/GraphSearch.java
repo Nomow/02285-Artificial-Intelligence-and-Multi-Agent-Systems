@@ -16,10 +16,22 @@ public class GraphSearch {
             //Try to solve a few levels by hand, enter the found solutions below, and run them:
 
             return new Action[][] {
-                {Action.MoveS},
-                {Action.MoveE},
-                {Action.MoveE},
-                {Action.MoveS},
+                    {Action.MoveE},
+                    {Action.MoveE},
+                    {Action.MoveE},
+                    {Action.MoveE},
+                    {Action.MoveE},
+                    {Action.MoveE},
+                    {Action.MoveE},
+                    {Action.MoveS},
+                    {Action.MoveS},
+                    {Action.MoveE},
+                    {Action.MoveE},
+                    {Action.MoveE},
+                    {Action.MoveS},
+                    {Action.MoveS},
+
+
             };
         } else {
             //Part 2:
