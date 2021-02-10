@@ -16,7 +16,6 @@ public class State
     public int[] agentRows;
     public int[] agentCols;
     public static Color[] agentColors;
-
     /*
         The walls, boxes, and goals arrays are indexed from the top-left of the level, row-major order (row, col).
                Col 0  Col 1  Col 2  Col 3
@@ -68,6 +67,9 @@ public class State
     // Precondition: Joint action must be applicable and non-conflicting in parent state.
     private State(State parent, Action[] jointAction)
     {
+
+//        System.out.println(Arrays.toString(this.agentColors));
+//        System.out.println("++++++++++++++++++++++++++++=");
         // Copy parent
         this.agentRows = Arrays.copyOf(parent.agentRows, parent.agentRows.length);
         this.agentCols = Arrays.copyOf(parent.agentCols, parent.agentCols.length);
@@ -76,6 +78,9 @@ public class State
         {
             this.boxes[i] = Arrays.copyOf(parent.boxes[i], parent.boxes[i].length);
         }
+
+
+//        System.out.println(Arrays.deepToString(this.boxes));
 
         // Set own parameters
         this.parent = parent;
@@ -100,6 +105,7 @@ public class State
                     break;
 
                 case Push:
+
                     break;
 
                 case Pull:
@@ -222,10 +228,40 @@ public class State
                 return this.cellIsFree(destinationRow, destinationCol);
 
             case Push:
-                break;
+                destinationRow = agentRow + action.agentRowDelta;
+                destinationCol = agentCol + action.agentColDelta;
+                // direction the agent moves there is a box
+                box = this.boxes[destinationRow][destinationCol];
+                if(box >= 'A' && box <= 'Z') {
+                    // box and agent have the same color
+                    Color boxColor = this.boxColors[(int)box - 65];
+                    if(boxColor == agentColor) {
+                        // cell where the box moves is free
+                        boxRow = destinationRow + action.boxRowDelta;
+                        boxCol = destinationCol + action.boxColDelta;
+                        return this.cellIsFree(boxRow, boxCol);
+                    }
+                }
+                return false;
 
             case Pull:
-                break;
+                // cell is free the direction agent is moving
+                destinationRow = agentRow + action.agentRowDelta;
+                destinationCol = agentCol + action.agentColDelta;
+                if(this.cellIsFree(destinationRow, destinationCol)) {
+                    // agent neigb cell opposite of box dir has a box
+                    destinationRow = agentRow - action.boxRowDelta;
+                    destinationCol = agentCol - action.boxColDelta;
+                    box = this.boxes[destinationRow][destinationCol];
+                    if (box >= 'A' && box <= 'Z') {
+                        // box and agent have the same color
+                        Color boxColor = this.boxColors[(int) box - 65];
+                        if (boxColor == agentColor) {
+                            return true;
+                        }
+                    }
+                }
+                return false;
         }
 
         // Unreachable:
