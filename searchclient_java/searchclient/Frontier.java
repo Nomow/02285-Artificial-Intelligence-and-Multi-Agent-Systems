@@ -2,6 +2,7 @@ package searchclient;
 
 import java.util.ArrayDeque;
 import java.util.HashSet;
+import java.util.Stack;
 
 public interface Frontier
 {
@@ -13,8 +14,7 @@ public interface Frontier
     String getName();
 }
 
-class FrontierBFS
-        implements Frontier
+class FrontierBFS implements Frontier
 {
     private final ArrayDeque<State> queue = new ArrayDeque<>(65536);
     private final HashSet<State> set = new HashSet<>(65536);
@@ -59,37 +59,43 @@ class FrontierBFS
     }
 }
 
-class FrontierDFS
-        implements Frontier
+class FrontierDFS implements Frontier
 {
+    private Stack<State> stack = new Stack<>();
+    private HashSet<State> set = new HashSet<>();
+
+
     @Override
     public void add(State state)
     {
-        throw new NotImplementedException();
+        stack.add(state);
+        set.add(state);
     }
 
     @Override
     public State pop()
     {
-        throw new NotImplementedException();
+        State n = stack.pop();
+        set.remove(n);
+        return n;
     }
 
     @Override
     public boolean isEmpty()
     {
-        throw new NotImplementedException();
+        return stack.isEmpty();
     }
 
     @Override
     public int size()
     {
-        throw new NotImplementedException();
+        return stack.size();
     }
 
     @Override
     public boolean contains(State state)
     {
-        throw new NotImplementedException();
+        return set.contains(state);
     }
 
     @Override
