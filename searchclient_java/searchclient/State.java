@@ -92,8 +92,9 @@ public class State
         for (int agent = 0; agent < numAgents; ++agent)
         {
             Action action = jointAction[agent];
-            char box;
-
+            int boxRow;
+            int boxCol;
+            char tmpBox;
             switch (action.type)
             {
                 case NoOp:
@@ -105,11 +106,31 @@ public class State
                     break;
 
                 case Push:
+                    // new agent rows and cols
+                    this.agentRows[agent] += action.agentRowDelta;
+                    this.agentCols[agent] += action.agentColDelta;
 
+                    // new box coords and the character
+                    boxRow = this.agentRows[agent];
+                    boxCol = this.agentCols[agent];
+                    tmpBox = this.boxes[boxRow][boxCol];
+                    this.boxes[boxRow][boxCol] = this.boxes[boxRow + action.boxRowDelta][boxCol + action.boxColDelta];
+                    this.boxes[boxRow + action.boxRowDelta][boxCol + action.boxColDelta] = tmpBox;
                     break;
 
                 case Pull:
+                    // new box coords and the character
+                    boxRow = this.agentRows[agent] - action.boxRowDelta;
+                    boxCol = this.agentCols[agent] - action.boxColDelta;
+                    tmpBox = this.boxes[boxRow][boxCol];
+                    this.boxes[boxRow][boxCol] = this.boxes[boxRow + action.boxRowDelta][boxCol + action.boxColDelta];
+                    this.boxes[boxRow + action.boxRowDelta][boxCol + action.boxColDelta] = tmpBox;
+
+                    // new agent rows and cols
+                    this.agentRows[agent] += action.agentRowDelta;
+                    this.agentCols[agent] += action.agentColDelta;
                     break;
+
 
             }
         }
@@ -276,6 +297,8 @@ public class State
         int[] destinationCols = new int[numAgents]; // column of new cell to become occupied by action
         int[] boxRows = new int[numAgents]; // current row of box moved by action
         int[] boxCols = new int[numAgents]; // current column of box moved by action
+        int[] destinationBoxRows = new int[numAgents]; // destination row of box moved by action
+        int[] destinationBoxCols = new int[numAgents]; // destination column of box moved by action
 
         // Collect cells to be occupied and boxes to be moved
         for (int agent = 0; agent < numAgents; ++agent)
@@ -283,8 +306,6 @@ public class State
             Action action = jointAction[agent];
             int agentRow = this.agentRows[agent];
             int agentCol = this.agentCols[agent];
-            int boxRow;
-            int boxCol;
 
             switch (action.type)
             {
@@ -294,16 +315,29 @@ public class State
                 case Move:
                     destinationRows[agent] = agentRow + action.agentRowDelta;
                     destinationCols[agent] = agentCol + action.agentColDelta;
-                    boxRows[agent] = agentRow; // Distinct dummy value
-                    boxCols[agent] = agentCol; // Distinct dummy value
+                    boxRows[agent] = agentRow;
+                    boxCols[agent] = agentCol;
+                    destinationBoxRows[agent] = agentRow + action.agentRowDelta;
+                    destinationBoxCols[agent] = agentCol + action.agentColDelta;
                     break;
 
                 case Push:
+                    destinationRows[agent] = agentRow + action.agentRowDelta;
+                    destinationCols[agent] = agentCol + action.agentColDelta;
+                    boxRows[agent] = destinationRows[agent];
+                    boxCols[agent] = destinationCols[agent];
+                    destinationBoxRows[agent] = destinationRows[agent] + action.boxRowDelta;
+                    destinationBoxCols[agent] = destinationCols[agent] + action.boxColDelta;
                     break;
 
                 case Pull:
+                    destinationRows[agent] = agentRow + action.agentRowDelta;
+                    destinationCols[agent] = agentCol + action.agentColDelta;
+                    boxRows[agent] = agentRow - action.boxRowDelta;
+                    boxCols[agent] = agentCol - action.boxColDelta;
+                    destinationBoxRows[agent] = agentRow;
+                    destinationBoxCols[agent] = agentCol;
                     break;
-
             }
         }
 
@@ -321,11 +355,35 @@ public class State
                     continue;
                 }
 
-                // Moving into same cell?
+                // two agents moved in to same cell
                 if (destinationRows[a1] == destinationRows[a2] && destinationCols[a1] == destinationCols[a2])
                 {
                     return true;
                 }
+
+                // two agents are moving the same box
+                if(boxRows[a1] == boxRows[a2] && boxCols[a1] == boxCols[a2]){
+                    return true;
+                }
+                // two boxes are moved in to same cell
+                if (destinationBoxRows[a1] == destinationBoxRows[a2] && destinationBoxCols[a1] == destinationBoxCols[a2])
+                {
+                    return true;
+                }
+
+                // a1 agent tries to move in a2 destination box cell
+                if (destinationRows[a1] == destinationBoxRows[a2] && destinationCols[a1] == destinationBoxCols[a2])
+                {
+                    return true;
+                }
+
+                // a2 agent tries to move in a1 box destination cell
+                if (destinationBoxRows[a1] == destinationRows[a2] && destinationBoxCols[a1] == destinationCols[a2])
+                {
+                    return true;
+                }
+
+
             }
         }
 
