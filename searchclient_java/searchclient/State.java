@@ -98,6 +98,13 @@ public class State
                     this.agentRows[agent] += action.agentRowDelta;
                     this.agentCols[agent] += action.agentColDelta;
                     break;
+
+                case Push:
+                    break;
+
+                case Pull:
+                    break;
+
             }
         }
     }
@@ -214,6 +221,11 @@ public class State
                 destinationCol = agentCol + action.agentColDelta;
                 return this.cellIsFree(destinationRow, destinationCol);
 
+            case Push:
+                break;
+
+            case Pull:
+                break;
         }
 
         // Unreachable:
@@ -249,7 +261,14 @@ public class State
                     boxRows[agent] = agentRow; // Distinct dummy value
                     boxCols[agent] = agentCol; // Distinct dummy value
                     break;
-           }
+
+                case Push:
+                    break;
+
+                case Pull:
+                    break;
+
+            }
         }
 
         for (int a1 = 0; a1 < numAgents; ++a1)

@@ -1,0 +1,1 @@
+java -jar ../server.jar -l ../levels/SAD1.lvl -c "java searchclient.SearchClient" -g -s 150 -t 180
