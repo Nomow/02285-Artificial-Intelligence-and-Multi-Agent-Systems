@@ -62,41 +62,41 @@ class FrontierBFS implements Frontier
 
 class FrontierDFS implements Frontier
 {
-    private Stack<State> stack = new Stack<>();
-    private HashSet<State> set = new HashSet<>(65536);
+    private final  Stack<State> stack = new Stack<>();
+    private final  HashSet<State> set = new HashSet<>(65536);
 
 
     @Override
     public void add(State state)
     {
-        stack.add(state);
-        set.add(state);
+        this.stack.add(state);
+        this.set.add(state);
     }
 
     @Override
     public State pop()
     {
-        State n = stack.pop();
-        set.remove(n);
+        State n = this.stack.pop();
+        this.set.remove(n);
         return n;
     }
 
     @Override
     public boolean isEmpty()
     {
-        return stack.isEmpty();
+        return this.stack.isEmpty();
     }
 
     @Override
     public int size()
     {
-        return stack.size();
+        return this.stack.size();
     }
 
     @Override
     public boolean contains(State state)
     {
-        return set.contains(state);
+        return this.set.contains(state);
     }
 
     @Override
@@ -108,49 +108,49 @@ class FrontierDFS implements Frontier
 
 class FrontierBestFirst implements Frontier
 {
-    private Heuristic heuristic;
-    private PriorityQueue<State> priorityQueue;
-    private HashSet<State> set;
+    private final  Heuristic heuristic;
+    private final  PriorityQueue<State> priorityQueue;
+    private final  HashSet<State> set;
 
 
     public FrontierBestFirst(Heuristic h)
     {
         this.heuristic = h;
-        priorityQueue = new PriorityQueue<State>(this.heuristic);
-        set = new HashSet<State>(65536);
+        this.priorityQueue = new PriorityQueue<State>(this.heuristic);
+        this.set = new HashSet<State>(65536);
     }
 
     @Override
     public void add(State state)
     {
-        priorityQueue.add(state);
-        set.add(state);
+        this.priorityQueue.add(state);
+        this.set.add(state);
     }
 
     @Override
     public State pop()
     {
-        State state = priorityQueue.poll();
-        set.remove(state);
+        State state = this.priorityQueue.poll();
+        this.set.remove(state);
         return state;
     }
 
     @Override
     public boolean isEmpty()
     {
-        return priorityQueue.isEmpty();
+        return this.priorityQueue.isEmpty();
     }
 
     @Override
     public int size()
     {
-        return priorityQueue.size();
+        return this.priorityQueue.size();
     }
 
     @Override
     public boolean contains(State state)
     {
-        return set.contains(state);
+        return this.set.contains(state);
     }
 
     @Override

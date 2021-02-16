@@ -10,6 +10,7 @@ public abstract class Heuristic
         // Here's a chance to pre-process the static parts of the level.
     }
 
+
     public int h(State s)
     {
         int goal_counter = 0;
