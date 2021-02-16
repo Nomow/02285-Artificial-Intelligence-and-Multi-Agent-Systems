@@ -1,19 +1,24 @@
 package searchclient;
 
-import java.util.Comparator;
+import java.awt.*;
+import java.awt.geom.Point2D;
+import java.util.*;
 
-public abstract class Heuristic
-        implements Comparator<State>
+public abstract class Heuristic implements Comparator<State>
 {
+    HashMap<Character, Point2D> goalmap = new HashMap<Character, Point2D>();
+
     public Heuristic(State initialState)
     {
-        // Here's a chance to pre-process the static parts of the level.
+
     }
 
     public int h(State s)
     {
+
         throw new NotImplementedException();
     }
+
 
     public abstract int f(State s);
 
@@ -24,8 +29,7 @@ public abstract class Heuristic
     }
 }
 
-class HeuristicAStar
-        extends Heuristic
+class HeuristicAStar extends Heuristic
 {
     public HeuristicAStar(State initialState)
     {
@@ -45,8 +49,7 @@ class HeuristicAStar
     }
 }
 
-class HeuristicWeightedAStar
-        extends Heuristic
+class HeuristicWeightedAStar extends Heuristic
 {
     private int w;
 
@@ -69,8 +72,7 @@ class HeuristicWeightedAStar
     }
 }
 
-class HeuristicGreedy
-        extends Heuristic
+class HeuristicGreedy extends Heuristic
 {
     public HeuristicGreedy(State initialState)
     {
