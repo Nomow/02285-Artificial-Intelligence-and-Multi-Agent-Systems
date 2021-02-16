@@ -13,16 +13,18 @@ public abstract class Heuristic
     public int h(State s)
     {
         int goal_counter = 0;
+        // 1...n-1 as first and last elements in rows and columns are walls
         for (int row = 1; row < s.goals.length - 1; row++)
         {
             for (int col = 1; col < s.goals[row].length - 1; col++)
             {
                 char goal = s.goals[row][col];
-
+                // determines if goal is a box and if the boxes are the same
                 if (goal >= 'A' && goal <= 'Z' && s.boxes[row][col] != goal)
                 {
                     goal_counter++;
                 }
+                // determines if the goal is agent and if the agents are the same
                 if (goal >= '0' && goal <= '9' && s.agentRows[goal - '0'] != row && s.agentCols[goal - '0'] != col)
                 {
                     goal_counter++;
