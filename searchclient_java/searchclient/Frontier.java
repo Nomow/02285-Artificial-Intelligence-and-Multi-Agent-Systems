@@ -110,28 +110,28 @@ class FrontierBestFirst implements Frontier
 {
     private Heuristic heuristic;
     private PriorityQueue<State> priorityQueue;
-    private HashSet<State> hashSet;
+    private HashSet<State> set;
 
 
     public FrontierBestFirst(Heuristic h)
     {
         this.heuristic = h;
         priorityQueue = new PriorityQueue<State>(this.heuristic);
-        hashSet = new HashSet<State>();
+        set = new HashSet<State>(65536);
     }
 
     @Override
     public void add(State state)
     {
         priorityQueue.add(state);
-        hashSet.add(state);
+        set.add(state);
     }
 
     @Override
     public State pop()
     {
         State state = priorityQueue.poll();
-        hashSet.remove(state);
+        set.remove(state);
         return state;
     }
 
@@ -150,7 +150,7 @@ class FrontierBestFirst implements Frontier
     @Override
     public boolean contains(State state)
     {
-        return priorityQueue.contains(state);
+        return set.contains(state);
     }
 
     @Override
