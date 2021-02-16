@@ -1,24 +1,36 @@
 package searchclient;
 
-import java.awt.*;
-import java.awt.geom.Point2D;
-import java.util.*;
+import java.util.Comparator;
 
-public abstract class Heuristic implements Comparator<State>
+public abstract class Heuristic
+        implements Comparator<State>
 {
-    HashMap<Character, Point2D> goalmap = new HashMap<Character, Point2D>();
-
     public Heuristic(State initialState)
     {
-
+        // Here's a chance to pre-process the static parts of the level.
     }
 
     public int h(State s)
     {
+        int goal_counter = 0;
+        for (int row = 1; row < s.goals.length - 1; row++)
+        {
+            for (int col = 1; col < s.goals[row].length - 1; col++)
+            {
+                char goal = s.goals[row][col];
 
-        throw new NotImplementedException();
+                if (goal >= 'A' && goal <= 'Z' && s.boxes[row][col] != goal)
+                {
+                    goal_counter++;
+                }
+                if (goal >= '0' && goal <= '9' && s.agentRows[goal - '0'] != row && s.agentCols[goal - '0'] != col)
+                {
+                    goal_counter++;
+                }
+            }
+        }
+        return goal_counter;
     }
-
 
     public abstract int f(State s);
 
@@ -29,7 +41,8 @@ public abstract class Heuristic implements Comparator<State>
     }
 }
 
-class HeuristicAStar extends Heuristic
+class HeuristicAStar
+        extends Heuristic
 {
     public HeuristicAStar(State initialState)
     {
@@ -49,7 +62,8 @@ class HeuristicAStar extends Heuristic
     }
 }
 
-class HeuristicWeightedAStar extends Heuristic
+class HeuristicWeightedAStar
+        extends Heuristic
 {
     private int w;
 
@@ -72,7 +86,8 @@ class HeuristicWeightedAStar extends Heuristic
     }
 }
 
-class HeuristicGreedy extends Heuristic
+class HeuristicGreedy
+        extends Heuristic
 {
     public HeuristicGreedy(State initialState)
     {

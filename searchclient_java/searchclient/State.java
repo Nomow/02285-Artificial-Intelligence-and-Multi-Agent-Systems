@@ -30,7 +30,6 @@ public class State
     public static boolean[][] walls;
     public char[][] boxes;
     public static char[][] goals;
-
     /*
         The box colors are indexed alphabetically. So this.boxColors[0] is the color of A boxes, 
         this.boxColor[1] is the color of B boxes, etc.
@@ -78,6 +77,8 @@ public class State
         {
             this.boxes[i] = Arrays.copyOf(parent.boxes[i], parent.boxes[i].length);
         }
+
+
 
 
 //        System.out.println(Arrays.deepToString(this.boxes));
