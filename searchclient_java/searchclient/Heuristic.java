@@ -46,6 +46,7 @@ public abstract class Heuristic
 
     public int h(State s)
     {
+        // preprocessing
         // gets box information out of the current state
         ArrayList<Integer> boxesLocRow = new ArrayList<Integer>();
         ArrayList<Integer> boxesLocCol = new ArrayList<Integer>();
@@ -70,34 +71,42 @@ public abstract class Heuristic
             }
         }
 
-        // Manhattan distance between boxes and their corresponding goals
-        // max value for comparison as there can be mutiple boxes with the same character
-
-        
-        int[] dstBoxGoals = new int[this.goalsBoxes.size()];
-        Arrays.fill(dstBoxGoals, Integer.MAX_VALUE);
-
-        for (int i = 0; i < dstBoxGoals.length; i++) {
-            int goalRow = this.goalBoxLocRow.get(i);
-            int goalCol = this.goalBoxLocCol.get(i);
-            char goal = this.goalsBoxes.get(i);
-            for (int j = 0; j < boxes.size(); j++) {
-                char box = boxes.get(j);
-                int boxRow = boxesLocRow.get(j);
-                int boxCol = boxesLocCol.get(j);
+        // box and goal calculations
+        // pairwise Manhattan distance between boxes and their corresponding goals
+        int[][]pdistBoxGoals = new int[this.goalsBoxes.size()][boxes.size()];
+        for (int row = 0; row < pdistBoxGoals.length; row++) {
+            Arrays.fill(pdistBoxGoals[row], Integer.MAX_VALUE);
+            int goalRow = this.goalBoxLocRow.get(row);
+            int goalCol = this.goalBoxLocCol.get(row);
+            char goal = this.goalsBoxes.get(row);
+            for(int col = 0; col < pdistBoxGoals[row].length; col++) {
+                char box = boxes.get(col);
+                int boxRow = boxesLocRow.get(col);
+                int boxCol = boxesLocCol.get(col);
                 // characters match and we calculate manhattan distance
                 if (goal == box) {
                     int dst = Math.abs(goalRow - boxRow) + Math.abs(goalCol - boxCol);
                     // minimal distance for each goal
-                    if (dstBoxGoals[i] > dst) {
-                        dstBoxGoals[i] = dst;
-                    }
+                    pdistBoxGoals[row][col] = dst;
                 }
             }
         }
 
+        // min distance from each goal
+        int[] dstBoxGoals = new int[this.goalsBoxes.size()];
+        for (int row = 0; row < pdistBoxGoals.length; row++) {
+            int minDst = pdistBoxGoals[row][0];
+            for (int col = 1; col < pdistBoxGoals[row].length; col++) {
+                int dst = pdistBoxGoals[row][col];
+                if(minDst > dst) {
+                    minDst = dst;
+                }
+            }
+            dstBoxGoals[row] = minDst;
+        }
+
+        // Agent and goal calculations
         // Manhattan distance between agents and their corresponding goals
-        // max value for comparison as there can be mutiple boxes with the same character
         int[] dstAgentGoals = new int[this.goalsAgents.size()];
         Arrays.fill(dstAgentGoals, Integer.MAX_VALUE);
         for (int i = 0; i < dstAgentGoals.length; i++) {
@@ -113,53 +122,65 @@ public abstract class Heuristic
             }
         }
 
-        // manhattan distance between agents and the boxes.
-        int[] dstBoxAgents = new int[this.goalsBoxes.size()];
-        Arrays.fill(dstBoxAgents, Integer.MAX_VALUE);
-        // assigns value 0 to the boxes that are already in goals
-        for (int i = 0; i < dstBoxAgents.length; i++){
-            if(dstBoxGoals[i] == 0) {
-                dstBoxAgents[i] = dstBoxGoals[i];
+        // Agent and box calculations
+        // pairwise manhattan distance between agents and the boxes.
+        int[][] pdistBoxAgents = new int[boxes.size()][s.agentRows.length];
+        for (int row = 0; row < pdistBoxAgents.length; row++) {
+            Arrays.fill(pdistBoxAgents[row], Integer.MAX_VALUE);
+            Color boxColor = boxesColor.get(row);
+            int boxRow = boxesLocRow.get(row);
+            int boxCol = boxesLocCol.get(row);
+            for (int col = 0; col < pdistBoxAgents[row].length; col++) {
+                int agentRow = s.agentRows[col];
+                int agentCol = s.agentCols[col];
+                Color agentColor = s.agentColors[col];
+                if(agentColor == boxColor) {
+                    int dst = Math.abs(boxRow - agentRow) + Math.abs(boxCol - agentCol);
+                    pdistBoxAgents[row][col] = dst;
+                }
             }
         }
 
-        for (int i = 0; i < dstBoxAgents.length; i++) {
-            char boxGoal = this.goalsBoxes.get(i);
-            for (int j = 0; j < boxes.size(); j++) {
-                char box = boxes.get(j);
-                // boxgoal and current box is the same
-                if(boxGoal == box) {
-                    int boxRow = boxesLocRow.get(j);
-                    int boxCol = boxesLocCol.get(j);
-                    Color boxColor = boxesColor.get(j);
-                    // checks each agents location with the box location if colors matches
-                    for (int k = 0; k < s.agentRows.length; k++) {
-                        int agentRow = s.agentRows[k];
-                        int agentCol = s.agentCols[k];
-                        Color agentColor = s.agentColors[k];
-                        // colors matches
-                        if(agentColor == boxColor) {
-                            int dst = Math.abs(boxRow - agentRow) + Math.abs(boxCol - agentCol);
-                            if (dstBoxAgents[i] > dst) {
-                                dstBoxAgents[i] = dst;
-                            }
+        int[] dstAgentBoxGoal = new int[this.goalsBoxes.size()];
+        Arrays.fill(dstAgentBoxGoal, Integer.MAX_VALUE);
+        // fills with 0's if box in place
+        for (int i = 0; i < dstAgentBoxGoal.length; ++i) {
+            if(dstBoxGoals[i] == 0) {
+                dstAgentBoxGoal[i] = 0;
+            }
+        }
+
+        // calculates cumulative distance between box and agent and box and goal
+        for (int i = 0; i < pdistBoxGoals.length; i++) { //this.goalsBoxes.size()
+            if(dstAgentBoxGoal[i] == 0) {
+                continue;
+            }
+            for (int j = 0; j < pdistBoxGoals[i].length; j++) { // boxes.size()
+                for (int k = 0; k < pdistBoxAgents[j].length; k++){ // s.agentRows.length
+                    int dstBG = pdistBoxGoals[i][j];
+                    int dstBA = pdistBoxAgents[j][k];
+                    if(dstBG != Integer.MAX_VALUE && dstBA != Integer.MAX_VALUE) {
+                        int dst = dstBG + dstBA;
+                        if(dstAgentBoxGoal[i] > dst) {
+                            dstAgentBoxGoal[i] = dst;
                         }
                     }
                 }
             }
         }
+
         // sums up the full cost
         int cost = 0;
+        for (int i = 0; i < dstAgentBoxGoal.length; i++) {
+            cost += dstAgentBoxGoal[i];
+        }
+
         for (int i = 0; i < dstBoxGoals.length; i++) {
             cost += dstBoxGoals[i];
         }
 
         for (int i = 0; i < dstAgentGoals.length; i++) {
             cost += dstAgentGoals[i];
-        }
-
-        for (int i = 0; i < dstBoxAgents.length; i++) {
-            cost += dstBoxAgents[i];
         }
         return cost;
 
