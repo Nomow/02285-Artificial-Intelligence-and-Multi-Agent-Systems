@@ -48,13 +48,12 @@ public abstract class Heuristic
     {
         // preprocessing
         // gets box information out of the current state
+        // Arraylist is used as add and get operations are constant time
         ArrayList<Integer> boxesLocRow = new ArrayList<Integer>();
         ArrayList<Integer> boxesLocCol = new ArrayList<Integer>();
         ArrayList<Character> boxes = new ArrayList<Character>();
         ArrayList<Color> boxesColor = new ArrayList<Color>();
-        // Arraylist is used as add and get operations are constant time
-        // retrieves box color location and character
-        // 1...n-1 as first and last elements in rows and columns are walls
+
         for (int row = 1; row < s.boxes.length - 1; row++)
         {
             for (int col = 1; col < s.boxes[row].length - 1; col++)
