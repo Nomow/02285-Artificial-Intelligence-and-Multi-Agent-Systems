@@ -71,6 +71,10 @@ public class GraphSearch {
                 explored.add(initialState);
 
                 while(!frontier.isEmpty()) {
+                    if (++iterations % 10000 == 0) {
+                        printSearchStatus(explored, frontier);
+                    }
+
                     State node = frontier.pop();
                     // acquires possible states of the node that was popped from frontier
                     // and determines if child is the goal state and if not then adds them to frontier
